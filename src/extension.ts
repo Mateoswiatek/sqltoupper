@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// Przypisanie zawartości tablicy do zmiennej
 			const userKeywords: string[] = sqlupperConfig;
 
-			const myKeywords = ['exists', 'replace', 'returns', 'record', 'to', 'query', 'true', 'false', 'nextval'];
+			const myKeywords = ['exists', 'replace', 'returns', 'record', 'to', 'query', 'true', 'false', 'nextval', 'with', 'copy', 'commit', 'values'];
 
 			// Agregacje SQL
 			const agregaty = ['avg', 'sum', 'min', 'max', 'count', 'group_concat'];
