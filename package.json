@@ -9,6 +9,10 @@
   "categories": [
     "Other"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mateoswiatek/sqltoupper"
+  },
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
