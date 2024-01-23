@@ -1,0 +1,115 @@
+
+select
+
+
+selec
+
+select
+
+SELECT
+
+select form to 
+SELECT to
+
+select 'from', 'to'
+
+$$
+$$ 
+
+$$
+ 
+ $ $ 
+SelEct 
+fRom
+FROM
+from
+to
+To
+tO
+Toto
+ToTo
+ToooT
+
+
+Napisz funkcje o nazwie uzupelnij_playliste która
+przyjmuje trzy argumenty: idplaylisty_od
+(int),idplaylisty_do (int), polub (boolean). Funkcja
+skopiuje z playlisty idplaylisty_od do playlisty
+idplaylisty_do utwory, które nie występują na tej drugiej.
+Jeżeli parametr polub jest równy TRUE to dla
+skopiowanych utworów funkcja doda oceny pozytywne
+(lubi = TRUE), wystawione przez właściciela drugiej
+playlisty, ale tylko jeśli jeszcze nie mają od niego ocen.
+Funkcja zwraca tabelę zawierającą wszystkie utwory
+(wiersze z tabeli utwory) znajdujące się na playliście
+idplaylisty_do po operacji kopiowania.
+
+
+create temporary table zawartosc_tmp
+as select * from zawartosc;
+
+create temporary table oceny_tmp
+as select * from oceny;
+
+drop function if exists uzupelnij_playliste(integer, integer, boolean);
+create or replace function uzupelnij_playliste(idplaylisty_od integer, idplaylisty_do integer, polub boolean)
+returns table (
+r_idutworu integer,
+r_idalbumu integer,
+r_nazwa varchar(100),
+r_dlugosc integer
+) as
+$$
+declare
+    owner integer;
+    r record;
+begin
+    owner = (select idklienta from playlisty where idplaylisty = idplaylisty_do);
+    -- ewentulanie tutaj dac except (te od union, intersect, except) 
+    for r in select * from zawartosc_tmp z where idplaylisty = idplaylisty_od and z.idutworu not in (select idutworu from zawartosc_tmp where idplaylisty = idplaylisty_do)
+    loop
+        insert into zawartosc_tmp values(idplaylisty_do, r.idutworu);
+        -- alternatywnie "where r.idutworu not in ()
+        if polub and not exists(select 1 from oceny_tmp where idklienta = owner and idutworu = r.idutworu) then
+            insert into oceny_tmp values(r.idutworu, owner, TRUE);
+        end if;
+    end loop;
+
+    return query select idutworu, idalbumu, nazwa, dlugosc from utwory natural join zawartosc_tmp where idplaylisty = idplaylisty_do;
+end;
+$$ language plpgsql;
+
+select * from zawartosc where idplaylisty = 1;
+select * from zawartosc where idplaylisty = 2;
+select * from oceny_tmp;
+select 'a tera jest funkcja i nowa tabela polubien';
+select * from uzupelnij_playliste(1, 2, TRUE);
+select * from oceny_tmp;
+
+/*
+1.
+Napisz funkcje czasTrwania, która jako parametr
+przyjmuję idplaylisty (int) i zwraca czas trwania danej
+playlisty
+*/
+
+drop function if exists czasTrwania(integer);
+create or replace function czasTrwania(idplaylisty_ integer, out czas integer) as
+$$
+declare
+
+begin
+    select sum(dlugosc) into czas from zawartosc natural join utwory where idplaylisty = idplaylisty_; 
+end;
+$$ language plpgsql;
+
+select * from playlisty natural join zawartosc join utwory using(idutworu) where idplaylisty = 1;
+
+select czasTrwania(1);
+
+/*
+2.
+Napisz bezargumentową funkcję max_play która zwróci
+idplaylisty (int) na której znajduje się najwięcej utworów -
+jeśli takich playlist jest więcej to zwróć jeden wynik
+*/

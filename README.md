@@ -1,0 +1,3 @@
+# sqltoupper README
+
+przyklad
